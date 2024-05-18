@@ -10,6 +10,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
 
+
+from django.shortcuts import redirect
+from allauth.socialaccount.models import SocialAccount
+
 class CustomAuthTokenView(APIView):
     def post(self, request, *args, **kwargs):
         username = request.data.get('username')
@@ -34,3 +38,19 @@ class CustomAuthTokenView(APIView):
         }
         
         return Response(data, status=status.HTTP_200_OK)
+    
+    
+def google_login(request):
+    if not request.user.is_authenticated:
+        return redirect('account_login')
+
+    user = request.user
+    refresh = RefreshToken.for_user(user)
+
+    token = {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+    # Redirect or render a template with the token
+    return JsonResponse(token)    
