@@ -9,7 +9,14 @@ class tokenserializer(serializers.ModelSerializer):
         
 class create_user_serializer(serializers.Serializer):
     username=serializers.CharField()
+    email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True) 
+        
+class google_profile(serializers.Serializer):
+    username=serializers.CharField()
     email=serializers.EmailField()
-    phone_number=serializers.CharField()    
-        
-        
+    profile_pic=serializers.URLField(required=False, allow_blank=True, allow_null=True)     
+    
+class login_serializer(serializers.Serializer):
+    email=serializers.EmailField(required=False, allow_blank=True, allow_null=True)   
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True)
