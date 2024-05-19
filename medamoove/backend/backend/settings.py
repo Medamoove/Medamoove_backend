@@ -45,10 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
     'rest_framework',
     'accounts',
     'rest_framework_simplejwt',
@@ -72,7 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
+    
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -150,7 +146,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-SITE_ID = 1
 
 
 AUTHENTICATION_BACKENDS = [
@@ -159,12 +154,12 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 
     # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
+   
 
 ]
 
 
-SOCIALACCOUNT_PROVIDERS = {
+""" SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
             'client_id':config('GOOGLE_OAUTH_CLIENT_ID'),
@@ -177,19 +172,7 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
     }
 }
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id':config('GOOGLE_OAUTH_CLIENT_ID'),
-            'secret': config('GOOGLE_OAUTH_CLIENT_SECRET'),
-            'key': ''
-        },
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-    }
-}
+ """
 """ SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {

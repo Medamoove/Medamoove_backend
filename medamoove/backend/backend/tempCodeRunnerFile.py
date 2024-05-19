@@ -1,8 +1,8 @@
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id':os.getenv('GOOGLE_OAUTH_CLIENT_ID'),
-            'secret': os.getenv('GOOGLE_OAUTH_CLIENT_SECRET'),
+            'client_id':config('GOOGLE_OAUTH_CLIENT_ID'),
+            'secret': config('GOOGLE_OAUTH_CLIENT_SECRET'),
             'key': ''
         },
         'SCOPE': [

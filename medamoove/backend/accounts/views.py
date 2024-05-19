@@ -12,7 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 from django.shortcuts import redirect
-from allauth.socialaccount.models import SocialAccount
+""" from allauth.socialaccount.models import SocialAccount """
 
 from .tests import *
 from django.utils import timezone
@@ -211,7 +211,7 @@ class google_signin(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)            
                     
- 
+
 class login(APIView):
     def post(self,request):
         try:

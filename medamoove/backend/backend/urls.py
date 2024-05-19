@@ -28,7 +28,6 @@ from accounts.views import login,otp_verification_login,googlelogin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),
     path('accounts/profile/', google_login, name='google_login_token'),
     path('api/token/', CustomAuthTokenView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
