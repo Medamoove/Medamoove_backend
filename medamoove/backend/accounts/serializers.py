@@ -20,3 +20,11 @@ class google_profile(serializers.Serializer):
 class login_serializer(serializers.Serializer):
     email=serializers.EmailField(required=False, allow_blank=True, allow_null=True)   
     phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    
+
+class otp_serializer(serializers.Serializer):
+    otp=serializers.IntegerField()
+    email=serializers.EmailField(required=False, allow_blank=True, allow_null=True)   
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    username=serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    

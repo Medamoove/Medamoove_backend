@@ -89,10 +89,16 @@ class create_user(APIView):
                         otp_verification.objects.create(email=email,otp=otp,expires_at=expiry_time)
                             
                     request.session['user_details'] = serializer.validated_data
+                    
                     # Start a thread to delete OTP after expiry time
                     t = threading.Thread(target=delete_expired_otp, args=(email,))
                     t.start()
-                    return JsonResponse({'message':'otp sent to mail successfully'}) 
+                    data={
+                        "username":username,
+                        "email":email,
+                        "phone_number":phone_number
+                    }
+                    return JsonResponse({'message':'otp sent to mail successfully',"data":data},status=status.HTTP_200_OK) 
                 
                 elif phone_number and User.objects.filter(phone_number=phone_number).exists():
                     return Response({"error": "user already exists."}, status=status.HTTP_400_BAD_REQUEST)
@@ -114,7 +120,12 @@ class create_user(APIView):
                     
                     t = threading.Thread(target=delete_expired_otp, args=(phone_number,))
                     t.start()
-                    return JsonResponse({'message':'otp sent successfully to phone number'})
+                    data={
+                        "username":username,
+                        "email":email,
+                        "phone_number":phone_number
+                    }
+                    return JsonResponse({'message':'otp sent successfully to phone number',"data":data},status=status.HTTP_200_OK)
                 
                 else:
                     return Response({"error": "email or phone number is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -138,49 +149,44 @@ class otp_verification_signin(APIView):
     def post(self,request):
         try:
             data=request.data
-            otp=data.get('otp')
-            if not otp:
-                return Response({"error": "OTP is required."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            user_details=request.session.get('user_details') 
-            if not user_details:
-                return Response({"error": "User details not found."}, status=status.HTTP_400_BAD_REQUEST)  
-            
-            email=user_details.get('email')
-            username=user_details.get('username')
-            phone_number=user_details.get('phone_number')
-            if email and otp_verification.objects.filter(email=email,otp=otp,expires_at__gte=timezone.now()).first():
-                if User.objects.filter(email=email).exists():
-                    return Response({"error": "user already exists."}, status=status.HTTP_400_BAD_REQUEST)
-                user=User.objects.create_user(username=username,email=email)
-                user.save()
-                refresh = RefreshToken.for_user(user)
+            serializers=otp_serializer(data=data)
+            if serializers.is_valid():
+                otp=serializers.data.get('otp')
+                email=serializers.data.get('email')
+                phone_number=serializers.data.get('phone_number')
+                username=serializers.data.get('username')
+                if not otp:
+                    return Response({"error": "OTP is required."}, status=status.HTTP_400_BAD_REQUEST)
+                
+                if email and otp_verification.objects.filter(email=email,otp=otp,expires_at__gte=timezone.now()).first():
+                    user=User.objects.create_user(username=username,email=email)
+                    user.save()
+                    refresh = RefreshToken.for_user(user)
 
-                token = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                }
-                return Response({"message": "User created successfully.","data":token}, status=status.HTTP_200_OK)
-            
-            elif phone_number and otp_verification.objects.filter(phone_number=phone_number,otp=otp,expires_at__gte=timezone.now()).first():
-                if userpersonalinfo.objects.filter(phone_number=phone_number).exists():
-                    return Response({"error": "user already exists."}, status=status.HTTP_400_BAD_REQUEST)
-                user=User.objects.create_user(username=username)
-                user.save()
-                userpersonal=userpersonalinfo.objects.create(user=user,phone_number=phone_number)
-                userpersonal.save()
-                refresh = RefreshToken.for_user(user)
+                    token = {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    }
+                    return Response({"message": "User created successfully.","data":token}, status=status.HTTP_200_OK)
+                
+                elif phone_number and otp_verification.objects.filter(phone_number=phone_number,otp=otp,expires_at__gte=timezone.now()).first():
+                    user=User.objects.create_user(username=username,email=email)
+                    user.save()
+                    userpersonal=userpersonalinfo.objects.create(user=user,phone_number=phone_number)
+                    userpersonal.save()
+                    refresh = RefreshToken.for_user(user)
 
-                token = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                }
-                return Response({"message": "User created successfully.","data":token}, status=status.HTTP_200_OK)
+                    token = {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    }
+                    return Response({"message": "User created successfully.","data":token}, status=status.HTTP_200_OK)
+                else:
+                    return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": serializers.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
         
 class google_signin(APIView):
     def post(self,request):
@@ -237,7 +243,12 @@ class login(APIView):
                     
                     t = threading.Thread(target=delete_expired_otp, args=(email,))
                     t.start()
-                    return JsonResponse({'message':'otp sent successfully to email'})
+                    
+                    data={
+                        "email":email,
+                        "phone_number":phone_number
+                    }
+                    return JsonResponse({'message':'otp sent successfully to email',"data":data})
                 
                 elif phone_number and userpersonalinfo.objects.filter(phone_number=phone_number).exists():
                     phone_number_sent,error_msg=send_otp_email(phone_number,otp)
@@ -252,11 +263,15 @@ class login(APIView):
                         otp_verification.objects.create(phone_number=phone_number,otp=otp,expires_at=expiry_time)
                     else:
                         otp_verification.objects.create(phone_number=phone_number,otp=otp,expires_at=expiry_time)    
-                        request.session['details'] = serializers.validated_data
+                    
+                    data={
+                        "email":email,
+                        "phone_number":phone_number
+                    }
                     
                     t = threading.Thread(target=delete_expired_otp, args=(phone_number,))
                     t.start()
-                    return JsonResponse({'message':'otp sent successfully to phone number'})
+                    return JsonResponse({'message':'otp sent successfully to phone number',"data":data},status=status.HTTP_200_OK)
                 else:
                     return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
             else:
@@ -269,42 +284,39 @@ class otp_verification_login(APIView):
     def post(self,request):
         try:
             data=request.data
-            otp=data.get('otp')
-            if not otp:
-                return Response({"error": "OTP is required."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            details=request.session.get('details') 
-            if not details:
-                return Response({"error": "User details not found."}, status=status.HTTP_400_BAD_REQUEST)  
-            
-            email=details.get('email')
-            phone_number=details.get('phone_number')
-            if email and otp_verification.objects.filter(email=email,otp=otp,expires_at__gte=timezone.now()).first():
-                user=User.objects.get(email=email)
-                refresh = RefreshToken.for_user(user)
+            serializers=otp_serializer(data=data)
+            if serializers.is_valid():
+                otp=serializers.data.get('otp')
+                email=serializers.data.get('email')
+                phone_number=serializers.data.get('phone_number')
+                if not otp:
+                    return Response({"error": "OTP is required."}, status=status.HTTP_400_BAD_REQUEST)
+                
+                if email and otp_verification.objects.filter(email=email,otp=otp,expires_at__gte=timezone.now()).first():
+                    user=User.objects.get(email=email)
+                    refresh = RefreshToken.for_user(user)
 
-                token = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                }
-                return Response({"message": "User login successfully.","data":token}, status=status.HTTP_200_OK)
-            
-            
-            elif phone_number and otp_verification.objects.filter(phone_number=phone_number,otp=otp,expires_at__gte=timezone.now()).first():
-                user=userpersonalinfo.objects.get(phone_number=phone_number).user
-                refresh = RefreshToken.for_user(user)
+                    token = {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    }
+                    return Response({"message": "User login successfully.","data":token}, status=status.HTTP_200_OK)
+                
+                elif phone_number and otp_verification.objects.filter(phone_number=phone_number,otp=otp,expires_at__gte=timezone.now()).first():
+                    user=User.objects.get(phone_number=phone_number)
+                    refresh = RefreshToken.for_user(user)
 
-                token = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-                }
-                return Response({"message": "User login successfully.","data":token}, status=status.HTTP_200_OK)
+                    token = {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    }
+                    return Response({"message": "User login successfully.","data":token}, status=status.HTTP_200_OK)
+                else:
+                    return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": serializers.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)         
-
-
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class googlelogin(APIView):
     def post(self,request):
