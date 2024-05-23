@@ -73,6 +73,12 @@ MIDDLEWARE = [
     
 ]
 
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://medamoove.rootski.live',
+    # Add other trusted origins if needed
+]
+
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
