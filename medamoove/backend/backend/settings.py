@@ -243,3 +243,14 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = '9271rsily@gmail.com'
 """ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') """
 EMAIL_HOST_PASSWORD = 'fqbqovclvzgagkvf'
+
+
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+cloudinary.config( 
+cloud_name = "dapm2rvsd", 
+api_key = "514735227555362", 
+api_secret = "EwEGQ2z2lxVp36xwXwm6ukGQFp4" 
+)

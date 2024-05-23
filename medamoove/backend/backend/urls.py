@@ -21,7 +21,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from accounts.views import CustomAuthTokenView,google_login,create_user,otp_verification_signin,google_signin
-from accounts.views import login,otp_verification_login,googlelogin
+from accounts.views import login,otp_verification_login,googlelogin,personalinfo,medicalinfo,userlifestyleinfo
+from accounts.views import *
 
 
 
@@ -37,4 +38,12 @@ urlpatterns = [
     path('api/login/', login.as_view(), name='login'),
     path('api/verify_otp_login/', otp_verification_login.as_view(), name='verify_otp_login'),
     path('api/google_login/', googlelogin.as_view(), name='login'),
+    path('api/getuserpersonalinfo/',personalinfo.as_view(),name='getuserpersonalinfo'),#get user personal info
+    path('api/getusermedicalinfo/',medicalinfo.as_view(),name='getusermedicalinfo'),#get user medical info
+    path('api/getlifestyleinfo/',userlifestyleinfo.as_view(),name='getlifestyleinfo'),#get lifestyle info
+    path('api/updatepersonalinfo/',updateuserpersonalinfo.as_view(),name='updateuserpersonalinfo'), #update userpersonalinfo
+    path('api/getdata/',getdata.as_view(),name='getdata'), #get data
+    path('api/updateusermedicalinfo/',updateusermedicalinfo.as_view(),name='updateusermedicalinfo'), #update usermedicalinfo
+    path('api/updatelifestyleinfo/',updatelifestyleinfo.as_view(),name='updatelifestyleinfo'), #update lifestyleinfo
+    
 ]    
