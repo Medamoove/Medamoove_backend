@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 """ SECRET_KEY = config('SECRET_KEY') """
-SECRET_KEY =os.getenv('SECRET_KEY')
+SECRET_KEY ='django-insecure-jm#4r%qq%3x02^_uxk-&d+72vdeby^x$gkj8v_e%409w(#4_-0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -236,4 +236,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = '9271rsily@gmail.com'
 """ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') """
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_PASSWORD = 'fqbqovclvzgagkvf'
