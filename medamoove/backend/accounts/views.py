@@ -9,7 +9,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
-import cloudinary.uploader
 
 
 from django.shortcuts import redirect
@@ -19,43 +18,6 @@ from .tests import *
 from django.utils import timezone
 import threading
 from .models import *
-from rest_framework.exceptions import AuthenticationFailed
-import jwt
-from django.conf import settings
-
-
-def get_user_from_token(request):
-    # Get the JWT token from the Authorization header
-    authorization_header = request.headers.get('Authorization')
-    if not authorization_header:
-        raise AuthenticationFailed('Authorization header is missing')
-
-    # Extract the token from the Authorization header
-    try:
-        token = authorization_header.split()[1]
-    except IndexError:
-        raise AuthenticationFailed('Token is missing in Authorization header')
-
-    # Decode the JWT token
-    try:
-        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-    except jwt.ExpiredSignatureError:
-        raise AuthenticationFailed('Token has expired')
-    except jwt.InvalidTokenError:
-        raise AuthenticationFailed('Invalid token')
-
-    # Extract user ID from the decoded token
-    user_id = decoded_token.get('user_id')
-    if not user_id:
-        raise AuthenticationFailed('User ID not found in token')
-
-    # Retrieve user from the database using the user ID
-    try:
-        user = User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        raise AuthenticationFailed('User not found')
-
-    return user
 
 class CustomAuthTokenView(APIView):
     def post(self, request, *args, **kwargs):
@@ -126,7 +88,7 @@ class create_user(APIView):
                     else:
                         otp_verification.objects.create(email=email,otp=otp,expires_at=expiry_time)
                             
-                    
+                    request.session['user_details'] = serializer.validated_data
                     
                     # Start a thread to delete OTP after expiry time
                     t = threading.Thread(target=delete_expired_otp, args=(email,))
@@ -329,9 +291,9 @@ class otp_verification_login(APIView):
                 phone_number=serializers.data.get('phone_number')
                 if not otp:
                     return Response({"error": "OTP is required."}, status=status.HTTP_400_BAD_REQUEST)
+                
                 if email and otp_verification.objects.filter(email=email,otp=otp,expires_at__gte=timezone.now()).first():
                     user=User.objects.get(email=email)
-        
                     refresh = RefreshToken.for_user(user)
 
                     token = {
@@ -378,148 +340,4 @@ class googlelogin(APIView):
                 return Response({"error": serializers.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
- 
-# get user details       
-class personalinfo(APIView):
-    def get(self,request):
-        try:
-            user = get_user_from_token(request)
-            if not user:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
-            userpersonal=userpersonalinfo.objects.filter(user=user).first()
-            if userpersonal:
-                userpersonal=userpersonalinfo.objects.get(user=user)
         
-                serializers=userpersonalinfo_serializer(userpersonal)
-                return Response(serializers.data,status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)    
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-class medicalinfo(APIView):
-    def get(self,request):
-        try:
-            user = get_user_from_token(request)
-            if not user:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
-            usermedical=usermedicalinfo.objects.filter(user=user).first()
-            if usermedical:
-                usermedical=usermedicalinfo.objects.get(user=user)
-                serializers=usermedicalinfo_serializer(usermedical)
-                return Response(serializers.data,status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)   
-        
-class userlifestyleinfo(APIView):
-    def get(self,request):
-        try:
-            user = get_user_from_token(request)
-            if not user:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
-            lifestyle=lifestyleinfo.objects.filter(user=user).first()
-            if lifestyle:
-                lifestyle=lifestyleinfo.objects.get(user=user)
-                serializers=lifestyleinfo_serializer(lifestyle)
-                return Response(serializers.data,status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-class updateuserpersonalinfo(APIView):
-    def put(self,request):
-        try:
-            user = get_user_from_token(request)
-            if not user:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            user_profile=userpersonalinfo.objects.get(user=user)
-            image=request.FILES.get('image')
-            print(image)
-            print(image)
-            if image:
-                key=user_profile.public_id
-                if key:
-                    destroy(key)
-                print(image)    
-                upload_result = cloudinary.uploader.upload(image)
-                print(upload_result)
-
-                # Update userpersonalinfo with image details
-                user_profile.image_url = upload_result['secure_url']
-                user_profile.public_id = upload_result['public_id']        
-            
-            serializer=update_userpersonalinfo_serializer(user_profile,data=request.data,partial=True)
-            print(serializer)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({"message":"updated"},status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-
-# view to get all allergies,medications,injuries,surgeries,chronic_diseases,occupation        
-
-class getdata(APIView):
-            def get(self,request):
-                try:
-                    allergies=Allergy.objects.all()
-                    allergiesserializer=allergies_serializer(allergies,many=True)
-                    medications=Medication.objects.all()
-                    medicationsserializer=medication_serializer(medications,many=True)
-                    injurie=injuries.objects.all()
-                    injuriesserializer=injuries_serializer(injurie,many=True)
-                    surgerie=surgeries.objects.all()
-                    surgeriesserializer=surgeries_serializer(surgerie,many=True)
-                    chronic_disease=chronic_diseases.objects.all()
-                    chronicdiseases_serializer=chronic_diseases_serializer(chronic_disease,many=True)
-                    occupations=occupation.objects.all()
-                    occupationserializer=occupation_serializer(occupations,many=True)
-                    data={
-                        "allergies":allergiesserializer.data,
-                        "medications":medicationsserializer.data,
-                        "injuries":injuriesserializer.data,
-                        "surgeries":surgeriesserializer.data,
-                        "chronic_diseases":chronicdiseases_serializer.data,
-                        "occupation":occupationserializer.data
-                    }
-                    return Response(data,status=status.HTTP_200_OK)
-                except Exception as e:
-                    return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-                
-class updateusermedicalinfo(APIView):
-    def put(self,request):
-        try:
-            user = get_user_from_token(request)
-            if not user:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
-            user_medical=usermedicalinfo.objects.get(user=user)
-            serializer=usermedicalinfo_serializer(user_medical,data=request.data,partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({"message":"updated"},status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)          
-        
-class updatelifestyleinfo(APIView):
-    def put(self,request):
-        try:
-            user = get_user_from_token(request)
-            if not user:
-                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
-            lifestyle=lifestyleinfo.objects.get(user=user)
-            serializer=lifestyleinfo_serializer(lifestyle,data=request.data,partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({"message":"updated"},status=status.HTTP_200_OK)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)              

@@ -23,9 +23,3 @@ def send_otp_email(email,otp):
         return False, str(e)
 
 # Create your tests here.
-import cloudinary.uploader
-def destroy(public_key):
-    
-    cloudinary.uploader.destroy(public_key)
-    
-    return True

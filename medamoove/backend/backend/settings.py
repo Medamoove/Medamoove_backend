@@ -28,15 +28,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 """ SECRET_KEY = config('SECRET_KEY') """
-SECRET_KEY =os.getenv('SECRET_KEY')
+SECRET_KEY ='django-insecure-jm#4r%qq%3x02^_uxk-&d+72vdeby^x$gkj8v_e%409w(#4_-0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'medamoove-backend.onrender.com'
+ALLOWED_HOSTS = ['*'
 ]
 
 
@@ -48,9 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
-    'cloudinary',
     'rest_framework',
     'accounts',
     'rest_framework_simplejwt',
@@ -75,6 +71,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
+]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://medamoove.rootski.live',
+    # Add other trusted origins if needed
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -240,19 +242,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = '9271rsily@gmail.com'
 """ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') """
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
-
-
-# importing cloudinary files
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-
-cloudinary.config( 
-cloud_name = "dapm2rvsd", 
-api_key = "514735227555362", 
-api_secret = "EwEGQ2z2lxVp36xwXwm6ukGQFp4" 
-)
-
-
+EMAIL_HOST_PASSWORD = 'fqbqovclvzgagkvf'

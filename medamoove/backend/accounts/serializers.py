@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import *
 
 
 class tokenserializer(serializers.ModelSerializer):
@@ -29,60 +28,3 @@ class otp_serializer(serializers.Serializer):
     phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     username=serializers.CharField(required=False, allow_blank=True, allow_null=True)
     
-#serializers for userpersonalinfo        
-class userpersonalinfo_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=userpersonalinfo
-        fields='__all__'
-        
-#serializers for usermedicalinfo
-class usermedicalinfo_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=usermedicalinfo
-        fields='__all__'    
-    
-#serializers for lifestyleinfo        
-class lifestyleinfo_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=lifestyleinfo
-        fields='__all__'       
-        
-#serializers for allergies,medications,injuries,surgeries,chronic_diseases,occupation        
-
-class allergies_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=Allergy
-        fields='__all__'
-        
-class medication_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=Medication
-        fields='__all__'        
-       
-class injuries_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=injuries
-        fields='__all__'           
-        
-class surgeries_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=surgeries
-        fields='__all__'        
-   
-class chronic_diseases_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=chronic_diseases
-        fields='__all__'        
-        
-class occupation_serializer(serializers.ModelSerializer):
-    class Meta:
-        model=occupation
-        fields='__all__'        
-        
-        
-#update serializers for userpersonalinfo        
-
-class update_userpersonalinfo_serializer(serializers.ModelSerializer): 
-    class Meta:
-        model=userpersonalinfo
-        fields=['phone_number','gender','dob','blood_group','height','weight']
