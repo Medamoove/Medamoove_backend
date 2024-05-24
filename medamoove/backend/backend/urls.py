@@ -24,6 +24,8 @@ from accounts.views import CustomAuthTokenView,google_login,create_user,otp_veri
 from accounts.views import login,otp_verification_login,googlelogin,personalinfo,medicalinfo,userlifestyleinfo
 from accounts.views import *
 
+from erp.views import *
+
 
 
 
@@ -45,5 +47,10 @@ urlpatterns = [
     path('api/getdata/',getdata.as_view(),name='getdata'), #get data
     path('api/updateusermedicalinfo/',updateusermedicalinfo.as_view(),name='updateusermedicalinfo'), #update usermedicalinfo
     path('api/updatelifestyleinfo/',updatelifestyleinfo.as_view(),name='updatelifestyleinfo'), #update lifestyleinfo
-    
+    path('erp/adddoctor/',adddoctor.as_view(),name='adddoctor'), #add doctor
+    path('erp/getdoctors/',getdoctors.as_view(),name='getdoctors'), #get doctors
+    path('erp/getpatient/',getpatients.as_view(),name='getdoctor'), #get doctor
+    path('erp/addpatient/',addpatient.as_view(),name='addpatient'), #add patient
+    path('api/addwallet/',addwallet.as_view(),name='addwallet'), #add wallet by user
+    path('api/getwallet/',getwallet.as_view(),name='getwallet'), #get wallet by user
 ]    

@@ -86,3 +86,26 @@ class update_userpersonalinfo_serializer(serializers.ModelSerializer):
     class Meta:
         model=userpersonalinfo
         fields=['phone_number','gender','dob','blood_group','height','weight']
+        
+        
+# wallet serializers               
+
+class files_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=files
+        fields=['file_url','public_id']        
+        
+class card_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=card
+        fields=['type','tags','description','date']  
+        
+class getcard_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=card
+        fields='__all__'       
+        
+class getfiles_serializer(serializers.ModelSerializer):
+    class Meta:
+        model=files
+        fields=['file_url']               

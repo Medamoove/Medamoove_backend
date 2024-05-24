@@ -516,4 +516,56 @@ class updatelifestyleinfo(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)              
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)             
+        
+        
+#wallet apis
+class addwallet(APIView):
+    def post(self,request):
+        try:
+            user = get_user_from_token(request)
+            if not user:
+                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
+            data=request.data
+            serializer=card_serializer(data=data)
+            print(serializer)
+            if serializer.is_valid():
+                documents=request.FILES.getlist('documents')
+                print(documents)
+                data_list=[]
+                if documents:
+                    for doc in documents:
+                        print(doc)
+                        upload_result = cloudinary.uploader.upload(doc)
+                        a=files.objects.create(file_url=upload_result['secure_url'],public_id=upload_result['public_id'])
+                        data_list.append(a)
+                    instance=serializer.save(created_by=user,created_for=user)
+                    instance.files.set(data_list)
+                else:
+                    instance=serializer.save()    
+            else:
+                return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)    
+            
+            wallets=Wallet.objects.create(user=user)
+            wallets.cards.add(instance)
+            return Response({"message":"created successfully"},status=status.HTTP_201_CREATED)
+        
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)    
+        
+
+class getwallet(APIView):
+    def get(self,request):
+        try:
+            user = get_user_from_token(request)
+            if not user:
+                return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)
+            wallets=Wallet.objects.filter(user=user).first()
+            if wallets:
+                cards=wallets.cards.all()
+                serializers=getcard_serializer(cards,many=True)
+                return Response(serializers.data,status=status.HTTP_200_OK)        
+            else:
+                return Response({"error": "wallet not found."}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)    

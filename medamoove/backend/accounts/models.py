@@ -122,3 +122,57 @@ class otp_verification(models.Model):
     
     def __str__(self):
         return self.email   
+    
+    
+class hospitals(models.Model):
+    Hid=models.AutoField(primary_key=True)
+    name=models.CharField(max_length=255)
+    email=models.EmailField(max_length=255,unique=True,null=True,blank=True)
+    address=models.CharField(max_length=255,null=True,blank=True)
+    phone_number=PhoneNumberField(("Phone Number"), unique=True,blank=True, null=True)
+    
+    def __str__(self):
+        return self.name
+    
+class hopital_admin(models.Model):
+    hospital=models.OneToOneField(hospitals,on_delete=models.CASCADE)
+    user=models.OneToOneField(User,on_delete=models.CASCADE)        
+    
+    def __str__(self):
+        return self.hospital.name+"+"+self.user.username
+    
+class files(models.Model):
+    file_id=models.AutoField(primary_key=True)
+    file_url=models.URLField(max_length=200)
+    public_id=models.CharField(max_length=200)
+    uploaded_at=models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return str(self.file_id)
+
+types=[('Prescription','Prescription'),('Report','Report'),('Other','Other')]    
+class card(models.Model):
+            card_id=models.AutoField(primary_key=True)
+            hospital=models.ForeignKey(hospitals,on_delete=models.CASCADE,related_name='hospital',null=True,blank=True)
+            created_by=models.ForeignKey(User,on_delete=models.CASCADE,related_name='createdby')
+            created_for=models.ForeignKey(User,on_delete=models.CASCADE,related_name='createdfor')
+            type=models.CharField(max_length=255,choices=types,null=True,blank=True)
+            tags=models.CharField(max_length=20,null=True,blank=True)
+            description=models.TextField(null=True,blank=True)
+            files=models.ManyToManyField(files,blank=True)
+            date=models.DateField(null=True,blank=True)
+            
+            def __str__(self):
+                return self.tags
+        
+        
+class Wallet(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
+    cards = models.ManyToManyField(card, related_name='wallets', blank=True)
+    
+    def __str__(self):     
+        return self.user.username
+            
+            
+    
+    
