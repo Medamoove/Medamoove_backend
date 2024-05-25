@@ -566,8 +566,19 @@ class getwallet(APIView):
             if wallets:
                 cards=wallets.cards.all()
                 serializers=getcard_serializer(cards,many=True)
-                return Response(serializers.data,status=status.HTTP_200_OK)        
+                dataa=serializers.data
+                print(dataa)
+                bolt=[]
+                for a in dataa:
+                    l=a['files']
+                    for b in l:
+                        g=files.objects.get(file_id=b).file_url
+                        bolt.append(files.objects.get(file_id=b).file_url)
+                    a['urls']=bolt    
+                    
+                    
+                return Response({"data":dataa},status=status.HTTP_200_OK)        
             else:
-                return Response({"error": "wallet not found."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "wallet not found.","files":b}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)    
