@@ -571,10 +571,10 @@ class getwallet(APIView):
                 cards=wallets.cards.all()
                 serializers=getcard_serializer(cards,many=True)
                 dataa=serializers.data
-                print(dataa)
-                bolt=[]
+                
                 for a in dataa:
                     l=a['files']
+                    bolt=[]
                     for b in l:
                         g=files.objects.get(file_id=b).file_url
                         bolt.append(files.objects.get(file_id=b).file_url)
