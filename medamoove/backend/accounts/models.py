@@ -154,8 +154,8 @@ types=[('Prescription','Prescription'),('Report','Report'),('Other','Other')]
 class card(models.Model):
             card_id=models.AutoField(primary_key=True)
             hospital=models.ForeignKey(hospitals,on_delete=models.CASCADE,related_name='hospital',null=True,blank=True)
-            created_by=models.ForeignKey(User,on_delete=models.CASCADE,related_name='createdby')
-            created_for=models.ForeignKey(User,on_delete=models.CASCADE,related_name='createdfor')
+            created_by=models.ForeignKey(User,on_delete=models.CASCADE,related_name='createdby',null=True,blank=True)
+            created_for=models.ForeignKey(User,on_delete=models.CASCADE,related_name='createdfor',null=True,blank=True)
             type=models.CharField(max_length=255,choices=types,null=True,blank=True)
             tags=models.CharField(max_length=20,null=True,blank=True)
             description=models.TextField(null=True,blank=True)

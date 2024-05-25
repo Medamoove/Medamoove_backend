@@ -53,4 +53,5 @@ urlpatterns = [
     path('erp/addpatient/',addpatient.as_view(),name='addpatient'), #add patient
     path('api/addwallet/',addwallet.as_view(),name='addwallet'), #add wallet by user
     path('api/getwallet/',getwallet.as_view(),name='getwallet'), #get wallet by user
+    path('api/addwallet_admin/',addwallet_byadmin.as_view(),name='getwallet'), #get wallet by user
 ]    

@@ -98,7 +98,7 @@ class files_serializer(serializers.ModelSerializer):
 class card_serializer(serializers.ModelSerializer):
     class Meta:
         model=card
-        fields=['type','tags','description','date']  
+        fields=['type','tags','description','date','created_for']  
         
 class getcard_serializer(serializers.ModelSerializer):
     class Meta:

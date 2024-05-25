@@ -11,8 +11,8 @@ class doctors(models.Model):
     last_name=models.CharField(max_length=255)
     email=models.EmailField(max_length=255,unique=True,null=True,blank=True)
     PhoneNumber=PhoneNumberField(("Phone Number"), unique=True,blank=True, null=True)
-    created_by=models.ForeignKey(User,on_delete=models.CASCADE,related_name='created_by')
-    user=models.OneToOneField(User,on_delete=models.CASCADE,related_name='user')
+    created_by=models.ForeignKey(User,on_delete=models.CASCADE,related_name='created_by',blank=True,null=True)
+    user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='user',blank=True,null=True)
     
     def __str__(self):
         return self.first_name+" "+self.last_name
