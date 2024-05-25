@@ -176,7 +176,7 @@ class create_user(APIView):
 import time
 def delete_expired_otp(email):
     # Sleep for 30 seconds
-    time.sleep(120)
+    time.sleep(90)
 
     # Delete expired OTP instances for the email
     otp_verification.objects.filter(email=email, expires_at__lte=timezone.now()).delete()
@@ -204,6 +204,7 @@ class otp_verification_signin(APIView):
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
                     }
+                    otp_verification.objects.filter(email=email).delete()
                     return Response({"message": "User created successfully.","data":token}, status=status.HTTP_200_OK)
                 
                 elif phone_number and otp_verification.objects.filter(phone_number=phone_number,otp=otp,expires_at__gte=timezone.now()).first():
@@ -217,6 +218,7 @@ class otp_verification_signin(APIView):
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
                     }
+                    otp_verification.objects.filter(email=email).delete()
                     return Response({"message": "User created successfully.","data":token}, status=status.HTTP_200_OK)
                 else:
                     return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
@@ -337,6 +339,7 @@ class otp_verification_login(APIView):
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
                     }
+                    otp_verification.objects.filter(email=email).delete()
                     return Response({"message": "User login successfully.","data":token}, status=status.HTTP_200_OK)
                 
                 elif phone_number and otp_verification.objects.filter(phone_number=phone_number,otp=otp,expires_at__gte=timezone.now()).first():
@@ -347,6 +350,7 @@ class otp_verification_login(APIView):
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
                     }
+                    otp_verification.objects.filter(email=email).delete()
                     return Response({"message": "User login successfully.","data":token}, status=status.HTTP_200_OK)
                 else:
                     return Response({"error": "Invalid OTP."}, status=status.HTTP_400_BAD_REQUEST)
