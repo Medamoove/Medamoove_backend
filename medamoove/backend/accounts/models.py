@@ -135,8 +135,8 @@ class hospitals(models.Model):
         return self.name
     
 class hopital_admin(models.Model):
-    hospital=models.OneToOneField(hospitals,on_delete=models.CASCADE)
-    user=models.OneToOneField(User,on_delete=models.CASCADE)        
+    hospital=models.ForeignKey(hospitals,on_delete=models.CASCADE)
+    user=models.ForeignKey(User,on_delete=models.CASCADE)        
     
     def __str__(self):
         return self.hospital.name+"+"+self.user.username

@@ -390,7 +390,9 @@ class personalinfo(APIView):
                 userpersonal=userpersonalinfo.objects.get(user=user)
         
                 serializers=userpersonalinfo_serializer(userpersonal)
-                return Response(serializers.data,status=status.HTTP_200_OK)
+                username=user.username
+                email=user.email
+                return Response({"data":serializers.data,"username":username,"email":email},status=status.HTTP_200_OK)
             else:
                 return Response({"error": "user not found."}, status=status.HTTP_400_BAD_REQUEST)    
         except Exception as e:
